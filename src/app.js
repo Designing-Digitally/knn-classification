@@ -57,7 +57,7 @@ const App = (App) =>
         }
     }
 
-    function goGlassify()
+    function goClassify()
     {
         const logits = features.infer(video);
         knn.classify(logits, (error, result) => {
@@ -69,7 +69,7 @@ const App = (App) =>
             {
                 label = result.label;
                 labelP.html(result.label);
-                goGlassify();
+                goClassify();
             }
         });
     }
@@ -79,28 +79,28 @@ const App = (App) =>
         console.log('modelReady');
     }
 
-    function keyPressed()
+    App.keyPressed = () =>
     {
         const logits = features.infer(video);
-        if (key == 'l') 
+        if (App.key == 'a') 
         {
             knn.addExample(logits, 'left');
             console.log('left');
         } 
-        else if (key == 'r') 
+        else if (App.key == 'd') 
         {
             knn.addExample(logits, 'right');
             console.log('right');
         } 
-        else if (key == 'u') {
+        else if (App.key == 'w') {
             knn.addExample(logits, 'up');
             console.log('up');
         } 
-        else if (key == 'd') {
+        else if (App.key == 's') {
             knn.addExample(logits, 'down');
             console.log('down');
         } 
-        else if (key == 's') 
+        else if (App.key == 'e') 
         {
             //save(knn, 'model.json');
             knn.save('model.json');
