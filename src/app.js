@@ -10,10 +10,12 @@ let myp5;
 let padding = 15;
 let numOfExamplesAdded = 100;
 let btnHeight = 11;
+let examplesExtracted = 0;
+
 const canvasDimensions = {width: 720, height: 405}
 
 //Button Declaration
-let leftButton, rightButton, upButton, downButton, saveButton;
+let leftButton, rightButton, upButton, downButton, saveButton, getLabelButton;
 const buttonArray = [];
 
 const App = (App) => 
@@ -47,8 +49,10 @@ const App = (App) =>
         upButton = new Button('Train Up', 'Up_Button', {x:(rightButton.width+rightButton.x)+padding ,y:canvasDimensions.height+btnHeight},buttonArray).InstantiateButton();
         downButton = new Button('Train Down', 'Down_Button', {x:(upButton.width+upButton.x)+padding ,y:canvasDimensions.height+btnHeight},buttonArray).InstantiateButton();
         saveButton = new Button('Save Trained KNN Data', 'Save_Button', {x:(downButton.width+downButton.x)+padding ,y:canvasDimensions.height+btnHeight}).InstantiateButton();
+        getLabelButton = new Button('Log Number of Labels', 'Get_Labels_Button', {x:(saveButton.width+saveButton.x)+padding ,y:canvasDimensions.height+btnHeight}).InstantiateButton();
         SetButtonEvents(buttonArray,StartTraining);
         saveButton.mousePressed(SaveModel);
+        getLabelButton.mousePressed(ShowLabels);
     }
 
 
@@ -85,6 +89,11 @@ const App = (App) =>
         });
     }
 
+    function ShowLabels()
+    {
+        console.log(knn.getCount());
+    }
+
 
     /**
     * Saves model to a json file.
@@ -111,9 +120,39 @@ const App = (App) =>
 
         if(extractionReady)
         {
-            labelP.html('START EXTRACTION');
-            ExtractExamples(label, ExtractionFinished);        
+            const extractionComplete = await ExamplesOverTime(100,label)
+
+            if(extractionComplete)
+                ExtractionFinished(label);
         }
+    }
+
+    /**
+    * Returns a fufilled promise.
+    *
+    * @param {number} time in milliseconds for the interval to run.
+    * @param {string} label the data being trained.
+    * @return {boolean} Returns true once the promise is fufilled.
+    */
+    
+    function ExamplesOverTime(time, label)
+    {
+        return new Promise(resolve => 
+        {
+            let interval = setInterval(() => {
+                ExtractExamples(label);
+
+                console.log(`Examples Extracted: ${examplesExtracted} | Examples Need: ${numOfExamplesAdded}`);
+                if(examplesExtracted == numOfExamplesAdded)
+                {
+                    console.log('Fufilled');
+                    resolve(true)
+                    clearInterval(interval);
+                    examplesExtracted = 0;
+                    console.log('Examples Extracted reset: ' + examplesExtracted);
+                }
+            }, time);  
+        });
     }
 
     /**
@@ -148,26 +187,15 @@ const App = (App) =>
     * Starts extracting examples
     *
     * @param {string} label Label that's being trained.
-    * @param {number} examplesExtracted Current loop in the iteration.
-    * @return {callback} Callback to let the user know its completed and they can proceed with the next label or save.
     */
 
-    function ExtractExamples(label,callback)
+    function ExtractExamples(label)
     {
         const logits = features.infer(video);
-        let examplesExtracted = 0;
-        let delay;
 
-
-        for(examplesExtracted; examplesExtracted != numOfExamplesAdded; examplesExtracted++)
-            delay = setTimeout(() => { knn.addExample(logits, label); }, 500);
-
-        if(examplesExtracted == numOfExamplesAdded)
-        {
-            callback(label);
-            clearTimeout(delay);
-        }
-            
+        labelP.html('Please continue to move closer and farther away from the camera to get a better registration for the label that is training.');
+        knn.addExample(logits, label);
+        examplesExtracted++;
     }
 
 
