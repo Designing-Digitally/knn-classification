@@ -6,9 +6,6 @@ let video;
 let features;
 let knn;
 let labelP;
-let x;
-let y;
-let label = 'nothing';
 let myp5;
 let padding = 15;
 let numOfExamplesAdded = 100;
@@ -44,16 +41,12 @@ const App = (App) =>
         labelP = App.createP('need training data');
         labelP.style("font-size", "18pt");
 
-        //CIRCLE POSITION
-        x = App.width/2;
-        y = App.height/2;
-
         //Button Creation
         leftButton = new Button('Train Left', 'Left_Button', {x:0 ,y:canvasDimensions.height+btnHeight},buttonArray).InstantiateButton();
         rightButton = new Button('Train Right', 'Right_Button', {x:leftButton.width+padding ,y:canvasDimensions.height+btnHeight},buttonArray).InstantiateButton();
         upButton = new Button('Train Up', 'Up_Button', {x:(rightButton.width+rightButton.x)+padding ,y:canvasDimensions.height+btnHeight},buttonArray).InstantiateButton();
         downButton = new Button('Train Down', 'Down_Button', {x:(upButton.width+upButton.x)+padding ,y:canvasDimensions.height+btnHeight},buttonArray).InstantiateButton();
-        saveButton = new Button('Save Trained Model', 'Save_Button', {x:(downButton.width+downButton.x)+padding ,y:canvasDimensions.height+btnHeight}).InstantiateButton();
+        saveButton = new Button('Save Trained KNN Data', 'Save_Button', {x:(downButton.width+downButton.x)+padding ,y:canvasDimensions.height+btnHeight}).InstantiateButton();
         SetButtonEvents(buttonArray,StartTraining);
         saveButton.mousePressed(SaveModel);
     }
@@ -68,42 +61,13 @@ const App = (App) =>
         //FOR ELLISE DRAW
         App.background(0);
         App.fill(255);
-        App.ellipse(x,y,24);
 
-         // FLIPPING VIDEO CAPTURE
-         App.push();
-         App.translate(canvasDimensions.width,0);
-         App.scale(-1,1);
-         App.image(video, 0, 0, canvasDimensions.width, canvasDimensions.height);
-         App.pop();
-
-
-        if (label == 'left') 
-        {
-            x--;
-        } 
-        else if (label == 'right') 
-        {
-            x++;
-        } 
-        else if (label == 'up') 
-        {
-            y--;
-        } 
-        else if (label == 'down') 
-        {
-            y++;
-        }
-
-        /**
-        * Would run the video if ready was false, and knn had labels trainied.
-        */
-        
-        // if (!ready && knn.getNumLabels() > 0) 
-        // {
-        //     goClassify();
-        //     ready = true;
-        // }
+        // FLIPPING VIDEO CAPTURE
+        App.push();
+        App.translate(canvasDimensions.width,0);
+        App.scale(-1,1);
+        App.image(video, 0, 0, canvasDimensions.width, canvasDimensions.height);
+        App.pop();
     }
 
 
@@ -130,8 +94,8 @@ const App = (App) =>
     
     function SaveModel()
     {
-        knn.save('model.json');
-        labelP.html('Saving your trained model, please do not leave this webpage until you see that your model has downloaded from your browser.\nThank you.');
+        knn.save('knn-data.json');
+        labelP.html('Saving your trained knn data, please do not leave this webpage until you see that your knn data has downloaded from your browser.\nThank you.');
     }
 
 
@@ -179,30 +143,6 @@ const App = (App) =>
             }, 1000);
         });
     }
-
-    /**
-    * Classifies whats in the video after its been trained.
-    *
-    * @return {results} Returns an object of results.
-    */
-    
-    function goClassify()
-    {
-        const logits = features.infer(video);
-        knn.classify(logits, (error, result) => {
-            if(error)
-            {
-                console.error(error);
-            }
-            else
-            {
-                label = result.label;
-                labelP.html(result.label);
-                goClassify();
-            }
-        });
-    }
-
     
     /**
     * Starts extracting examples
@@ -252,7 +192,7 @@ const App = (App) =>
     
     function modelReady()
     {
-        labelP.html('Model is now ready, please press one of the buttons above to begin training.');
+        labelP.html('MobileNet is now ready, please press one of the buttons above to begin training.');
     }
 }
 
