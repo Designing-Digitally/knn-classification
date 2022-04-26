@@ -15,7 +15,7 @@ let examplesExtracted = 0;
 const canvasDimensions = {width: 720, height: 405}
 
 //Button Declaration
-let leftButton, rightButton, upButton, downButton, saveButton, getLabelButton;
+let leftButton, rightButton, upButton, downButton, centerButton, saveButton, getLabelButton;
 const buttonArray = [];
 
 const App = (App) => 
@@ -48,8 +48,10 @@ const App = (App) =>
         rightButton = new Button('Train Right', 'Right_Button', {x:leftButton.width+padding ,y:canvasDimensions.height+btnHeight},buttonArray).InstantiateButton();
         upButton = new Button('Train Up', 'Up_Button', {x:(rightButton.width+rightButton.x)+padding ,y:canvasDimensions.height+btnHeight},buttonArray).InstantiateButton();
         downButton = new Button('Train Down', 'Down_Button', {x:(upButton.width+upButton.x)+padding ,y:canvasDimensions.height+btnHeight},buttonArray).InstantiateButton();
-        saveButton = new Button('Save Trained KNN Data', 'Save_Button', {x:(downButton.width+downButton.x)+padding ,y:canvasDimensions.height+btnHeight}).InstantiateButton();
+        centerButton = new Button('Train Center', 'Center_Button', {x:(downButton.width+downButton.x)+padding ,y:canvasDimensions.height+btnHeight},buttonArray).InstantiateButton();
+        saveButton = new Button('Save Trained KNN Data', 'Save_Button', {x:(centerButton.width+centerButton.x)+padding ,y:canvasDimensions.height+btnHeight}).InstantiateButton();
         getLabelButton = new Button('Log Number of Labels', 'Get_Labels_Button', {x:(saveButton.width+saveButton.x)+padding ,y:canvasDimensions.height+btnHeight}).InstantiateButton();
+        
         SetButtonEvents(buttonArray,StartTraining);
         saveButton.mousePressed(SaveModel);
         getLabelButton.mousePressed(ShowLabels);
@@ -89,6 +91,10 @@ const App = (App) =>
         });
     }
 
+    /**
+    * @return {log} Returns a console log with the number of labels and examples for each label.
+    */
+    
     function ShowLabels()
     {
         console.log(knn.getCount());
@@ -145,11 +151,9 @@ const App = (App) =>
                 console.log(`Examples Extracted: ${examplesExtracted} | Examples Need: ${numOfExamplesAdded}`);
                 if(examplesExtracted == numOfExamplesAdded)
                 {
-                    console.log('Fufilled');
                     resolve(true)
                     clearInterval(interval);
                     examplesExtracted = 0;
-                    console.log('Examples Extracted reset: ' + examplesExtracted);
                 }
             }, time);  
         });
@@ -215,7 +219,7 @@ const App = (App) =>
     /**
     * Callback for when the model is loaded.
     *
-    * @return {string} Updates html element to let the user know it's ready.
+    * @update {string} Updates html element to let the user know it's ready.
     */
     
     function modelReady()
@@ -225,7 +229,6 @@ const App = (App) =>
 }
 
 myp5 = new p5(App);
-
 
 /**
 * Class to easily create and manage a p5 button
